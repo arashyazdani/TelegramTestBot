@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Telegram.Bot;
 using TeleSharp.TL;
 using TeleSharp.TL.Messages;
 using TeleSharp.TL.Updates;
@@ -20,6 +21,10 @@ namespace TelegramTestBot.Controllers
     public class TelegramController : ControllerBase
     {
         private readonly IConfiguration _config;
+
+        private static TelegramBotClient _myBot = new TelegramBotClient("1457576836:AAE8TbGEdNVfhyp7OdIpxtQXSHjia3XbiFM");
+
+        private string botToken { get; set; }
 
         private string NumberToSendMessage { get; set; }
 
@@ -62,9 +67,12 @@ namespace TelegramTestBot.Controllers
         public TelegramController(IConfiguration config)
         {
             _config = config;
+
             ApiId = int.Parse(_config.GetSection("TelegramSettings:api_id").Value);
 
             ApiHash = _config.GetSection("TelegramSettings:api_hash").Value;
+
+            botToken = _config.GetSection("TelegramSettings:bot_token").Value;
         }
 
         [HttpGet]
@@ -79,6 +87,8 @@ namespace TelegramTestBot.Controllers
                 //ApiHash = _config.GetSection("TelegramSettings:api_hash").Value;
 
                 var client = NewClient();
+
+                var newBot = NewBotClient();
 
                 //var client = new TelegramClient(ApiId, ApiHash);
 
@@ -124,8 +134,53 @@ namespace TelegramTestBot.Controllers
                 }
 
                 await client.SendTypingAsync(new TLInputPeerUser() { UserId = user1.Id });
-                Thread.Sleep(3000);
+                //Thread.Sleep(3000);
                 await client.SendMessageAsync(new TLInputPeerUser() { UserId = user1.Id }, "TEST");
+
+                var dialogs = (TLDialogs)await client.GetUserDialogsAsync();
+
+                var a = newBot.GetUpdatesAsync();
+                var chat = dialogs.Chats
+                    .OfType<TLChannel>()
+                    .FirstOrDefault(c => c.Title == "Test Group");
+                //await newBot.SendTextMessageAsync(chat.Id, "Test Bot");
+                //await newBot.SendTextMessageAsync("s1209103133_9102905055035361196", "Test Bot");
+                await newBot.SendTextMessageAsync("-s1209103133_9102905055035361196", "Test Bot");
+                await newBot.SendTextMessageAsync("-" + chat.Id.ToString(), "Test Bot");
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
+
+        [HttpGet("{id}")]
+        [HttpGet]
+        public async Task<ActionResult> TelegramSendTestMessageAsync(string id)
+        {
+            try
+            {
+                var client = NewClient();
+
+                var newBot = NewBotClient();
+
+                await client.ConnectAsync();
+
+                if (!client.IsUserAuthorized())
+                {
+                    await AuthUser();
+                }
+                var result = await client.GetContactsAsync();
+
+                var dialogs = (TLDialogs)await client.GetUserDialogsAsync();
+
+                var a = newBot.GetUpdatesAsync();
+                var chat = dialogs.Chats
+                    .OfType<TLChannel>()
+                    .FirstOrDefault(c => c.Title == "Test Group");
+                await newBot.SendTextMessageAsync(id, "Test Bot");
 
                 return Ok();
             }
@@ -593,6 +648,19 @@ namespace TelegramTestBot.Controllers
             try
             {
                 return new TelegramClient(ApiId, ApiHash);
+            }
+            catch (MissingApiConfigurationException ex)
+            {
+                throw new Exception($"Please add your API settings to the `app.config` file. (More info: {MissingApiConfigurationException.InfoUrl})",
+                                    ex);
+            }
+        }
+
+        private TelegramBotClient NewBotClient()
+        {
+            try
+            {
+                return new TelegramBotClient(botToken);
             }
             catch (MissingApiConfigurationException ex)
             {

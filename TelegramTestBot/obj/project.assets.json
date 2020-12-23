@@ -4737,11 +4737,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\IPACO\\source\\repos\\TelegramTestBot\\TelegramTestBot\\TelegramTestBot.csproj",
+      "projectUniqueName": "C:\\Users\\IPACO\\Documents\\GitHub\\TelegramTestBot\\TelegramTestBot\\TelegramTestBot.csproj",
       "projectName": "TelegramTestBot",
-      "projectPath": "C:\\Users\\IPACO\\source\\repos\\TelegramTestBot\\TelegramTestBot\\TelegramTestBot.csproj",
+      "projectPath": "C:\\Users\\IPACO\\Documents\\GitHub\\TelegramTestBot\\TelegramTestBot\\TelegramTestBot.csproj",
       "packagesPath": "C:\\Users\\IPACO\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\IPACO\\source\\repos\\TelegramTestBot\\TelegramTestBot\\obj\\",
+      "outputPath": "C:\\Users\\IPACO\\Documents\\GitHub\\TelegramTestBot\\TelegramTestBot\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Microsoft\\Xamarin\\NuGet\\"

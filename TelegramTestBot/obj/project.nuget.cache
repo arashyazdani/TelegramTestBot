@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "kuV65lGo3o8oXHIeCCUCVkRcFZnQiV0jwPjMFaUp2n8xSsqWCSS5JuywmbpkOOltfQH05bbhKlSJ4XuaE7eX2A==",
+  "dgSpecHash": "ZneHuik+gSB2NXmXN2q27VngngWEJiAFLNczbbb9BOVVb7M2XSuAEVlJa1Na3vAYPsbiYgiVkU/qrGbs+C3AeQ==",
   "success": true,
-  "projectFilePath": "C:\\Users\\IPACO\\source\\repos\\TelegramTestBot\\TelegramTestBot\\TelegramTestBot.csproj",
+  "projectFilePath": "C:\\Users\\IPACO\\Documents\\GitHub\\TelegramTestBot\\TelegramTestBot\\TelegramTestBot.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\IPACO\\.nuget\\packages\\microsoft.netcore.platforms\\1.1.0\\microsoft.netcore.platforms.1.1.0.nupkg.sha512",
     "C:\\Users\\IPACO\\.nuget\\packages\\microsoft.netcore.targets\\1.1.0\\microsoft.netcore.targets.1.1.0.nupkg.sha512",

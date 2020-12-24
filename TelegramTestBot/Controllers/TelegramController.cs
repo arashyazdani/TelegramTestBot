@@ -22,8 +22,6 @@ namespace TelegramTestBot.Controllers
     {
         private readonly IConfiguration _config;
 
-        private static TelegramBotClient _myBot = new TelegramBotClient("1457576836:AAE8TbGEdNVfhyp7OdIpxtQXSHjia3XbiFM");
-
         private string botToken { get; set; }
 
         private string NumberToSendMessage { get; set; }
@@ -157,7 +155,6 @@ namespace TelegramTestBot.Controllers
         }
 
         [HttpGet("{id}")]
-        [HttpGet]
         public async Task<ActionResult> TelegramSendTestMessageAsync(string id)
         {
             try
@@ -605,15 +602,16 @@ namespace TelegramTestBot.Controllers
             Assert.IsTrue(client.IsUserAuthorized());
         }
 
-        public virtual async Task AuthPhoneNumber(string phoneNumber)
+        [HttpGet("AuthPhoneNumber/{phonenumber}/{code}")]
+        public virtual async Task AuthPhoneNumber(string phoneNumber, string code)
         {
             //var client = NewClient();
             var client = NewClient();
 
             await client.ConnectAsync();
 
-            var hash = await client.SendCodeRequestAsync("+989372474147");
-            var code = "94904"; // you can change code in debugger
+            var hash = await client.SendCodeRequestAsync(phoneNumber);
+            //var code = "94904"; // you can change code in debugger
 
             //var user = await client.MakeAuthAsync("+989372474147", hash, code);
 
@@ -625,7 +623,7 @@ namespace TelegramTestBot.Controllers
             TLUser user = null;
             try
             {
-                user = await client.MakeAuthAsync("+989372474147", hash, code);
+                user = await client.MakeAuthAsync(phoneNumber, hash, code);
             }
             catch (CloudPasswordNeededException ex)
             {

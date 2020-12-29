@@ -3,11 +3,14 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Telegram.Bot;
+using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using TeleSharp.TL;
 using TeleSharp.TL.Messages;
 using TeleSharp.TL.Updates;
@@ -73,7 +76,70 @@ namespace TelegramTestBot.Controllers
             botToken = _config.GetSection("TelegramSettings:bot_token").Value;
         }
 
-        [HttpGet]
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] Update update)
+        {
+            try
+            {
+                var client = NewBotClient();
+
+                if (update.Type != UpdateType.Message)
+                    return null;
+
+                var message = update.Message;
+
+                //_logger.LogInformation("Received Message from {0}", message.Chat.Id);
+
+                switch (message.Type)
+                {
+                    case MessageType.Text:
+                        // Echo each Message
+                        await client.SendTextMessageAsync(message.Chat.Id, message.Text);
+                        break;
+
+                    case MessageType.Photo:
+                        // Download Photo
+                        var fileId = message.Photo.LastOrDefault()?.FileId;
+                        var file = await client.GetFileAsync(fileId);
+
+                        var filename = file.FileId + "." + file.FilePath.Split('.').Last();
+                        using (var saveImageStream = System.IO.File.Open(filename, FileMode.Create))
+                        {
+                            await client.DownloadFileAsync(file.FilePath, saveImageStream);
+                        }
+
+                        await client.SendTextMessageAsync(message.Chat.Id, "Thx for the Pics");
+                        break;
+                }
+                if (update.Type == UpdateType.Message)
+                {
+                    await client.SendTextMessageAsync(update.Message.From.Id, "Hi, " + update.Message.From.Username);
+                }
+                //await client.SendTextMessageAsync(update.Message.From.Id, "Hi, " + update.Message.From.Username);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
+
+        [HttpGet("SetWebhook/{address}")]
+        public async Task<ActionResult> SetWebhook(string address)
+        {
+            try
+            {
+                var client = NewBotClient();
+                client.SetWebhookAsync("https://" + address + ".ngrok.io" + "/Telegram").Wait();
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
+
+        [HttpGet("asdfasf")]
         public async Task<ActionResult> TelegramSendTestMessageAsync()
         {
             try
@@ -180,6 +246,113 @@ namespace TelegramTestBot.Controllers
                 await newBot.SendTextMessageAsync(id, "Test Bot");
 
                 return Ok();
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
+
+        [HttpGet("tm/{id}")]
+        public async Task<ActionResult> TrnsactionMessagesAsync(string id)
+        {
+            try
+            {
+                var client = NewClient();
+
+                var newBot = NewBotClient();
+
+                await client.ConnectAsync();
+
+                if (!client.IsUserAuthorized())
+                {
+                    await AuthUser();
+                }
+                var result = await client.GetContactsAsync();
+
+                var dialogs = (TLDialogs)await client.GetUserDialogsAsync();
+
+                var a = newBot.GetUpdatesAsync();
+                var chat = dialogs.Chats
+                    .OfType<TLChannel>()
+                    .FirstOrDefault(c => c.Title == "Test Group");
+                await newBot.SendTextMessageAsync(id, "Test Bot");
+
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return Ok(ex.Message);
+            }
+        }
+
+        [HttpGet("splitmystring/{newid}")]
+        public async Task<ActionResult> SplitMyStringAsync(string newid)
+        {
+            try
+            {
+                char[] delimiterChars = { ' ', ',', '.', ':', '\t', '', '\n', '\r', ' ' };
+                var mesagesList = new List<string>();
+
+                if (newid == "123")
+                {
+                    string text = @"🔵 خریدار : بهزاد
+🔴 فروشنده : سامان اراز
+✅ تعداد: 2 قیمت: 4,981,000 ✅
+⏱ تاریخ: 1399/10/04 20:41:00
+🔖 تراکنش حواله: 39205";
+
+                    //string newId = @"🔵 خریدار : بهزاد
+                    //🔴 فروشنده‌: سامان اراز
+                    //✅ تعداد: 2 قیمت: 4,981,000 ✅
+                    //⏱ تاریخ: 1399 / 10 / 04 20:41:00
+                    //🔖 تراکنش حواله: 39205";
+                    //return Ok(newId.Split());
+                    string[] words = text.Split(delimiterChars);
+                    foreach (var item in words)
+                    {
+                        if (!string.IsNullOrEmpty(item)) mesagesList.Add(item);
+                    }
+                    var references = text.Split(new string[] { "\r\n", "\r" }, StringSplitOptions.RemoveEmptyEntries);
+
+                    //Simple OrderBy(Alphabetical)
+                    var ordered = references.ToList<string>().OrderBy(ff => ff);
+
+                    //Return the entry text ordered alphabetical em with a carriage return between every result
+                    var valueToReturn = String.Join(Environment.NewLine, ordered);
+                    foreach (var item in references)
+                    {
+                        mesagesList.Add(item);
+                    }
+                    mesagesList.Add(references.Count().ToString());
+                    return Ok(mesagesList);
+                    //return Ok(mesagesList.ToList() + "\r\n" + valueToReturn);
+                    //return Ok(words);
+                }
+
+                if (!string.IsNullOrEmpty(newid))
+                {
+                    string[] splitText = newid.Split(delimiterChars);
+                    int i = 0;
+                    foreach (var item in splitText)
+                    {
+                        if (item == "خ")
+                        {
+                            mesagesList.Add("خرید " + splitText[i - 1] + " حجم به مبلغ " + splitText[i + 1]);
+                            break;
+                        }
+                        if (item == "ف")
+                        {
+                            mesagesList.Add("فروش " + splitText[i - 1] + " حجم به مبلغ " + splitText[i + 1]);
+                            break;
+                        }
+                        i++;
+                    }
+                    return Ok(mesagesList.ToList());
+                    //return Ok(splitText.ToList());
+                }
+
+                return Ok("Its nothing.");
             }
             catch (Exception ex)
             {

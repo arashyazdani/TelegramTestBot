@@ -10,12 +10,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using TelegramTestBot.Services;
+using Microsoft.AspNetCore.Mvc.NewtonsoftJson;
 
 namespace TelegramTestBot
 {
     public class Startup
     {
         private readonly IConfiguration _config;
+        //private readonly BotService _botService;
 
         //public IConfiguration Configuration { get; }
         //public IConfiguration Configuration { get; private set; }
@@ -32,13 +35,20 @@ namespace TelegramTestBot
             //    .AddEnvironmentVariables();
 
             //_config = builder.Build();
+            //var bot = new Telegram.Bot.TelegramBotClient(_config.GetSection("TelegramSettings:bot_token").Value);
+            //bot.SetWebhookAsync("https://localhost:44322/Update").Wait();
+            //bot.SetWebhookAsync("https://localhost:44322/api/webhook").Wait();
         }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services)//, BotService botService)
         {
-            services.AddControllers();
+            //services.AddScoped<IUpdateService, UpdateService>();
+            //services.AddSingleton<IBotService, BotService>();
             services.AddSingleton<IConfiguration>(_config);
+            //services.Configure<BotConfiguration>(_config.GetSection("BotConfiguration"));
+            //services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
